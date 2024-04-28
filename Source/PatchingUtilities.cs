@@ -369,7 +369,7 @@ namespace Multiplayer.Compat
             }
         }
 
-        public static void ReplaceCurrentMapUsage(string typeColonName, bool logIfNothingPatched = true)
+        public static void ReplaceCurrentMapUsage(string typeColonName)
         {
             if (typeColonName.NullOrEmpty())
             {
@@ -379,32 +379,20 @@ namespace Multiplayer.Compat
 
             var method = AccessTools.DeclaredMethod(typeColonName) ?? AccessTools.Method(typeColonName);
             if (method != null)
-                ReplaceCurrentMapUsage(method, logIfNothingPatched);
+                ReplaceCurrentMapUsage(method);
             else
                 Log.Warning($"Trying to patch current map usage for null method ({typeColonName}). Was the method removed or renamed?");
         }
 
-        public static void ReplaceCurrentMapUsage(MethodBase method, bool logIfNothingPatched = true)
+        public static void ReplaceCurrentMapUsage(MethodBase method)
         {
             if (method != null)
-            {
-                var transpiler = new HarmonyMethod(logIfNothingPatched
-                    ? MpMethodUtil.MethodOf(ReplaceCurrentMapUsageTranspiler)
-                    : MpMethodUtil.MethodOf(ReplaceCurrentMapUsageNoLogTranspiler));
-
-                MpCompat.harmony.Patch(method, transpiler: transpiler);
-            }
+                MpCompat.harmony.Patch(method, transpiler: new HarmonyMethod(typeof(PatchingUtilities), nameof(ReplaceCurrentMapUsageTranspiler)));
             else
                 Log.Warning("Trying to patch current map usage for null method. Was the method removed or renamed?");
         }
 
         private static IEnumerable<CodeInstruction> ReplaceCurrentMapUsageTranspiler(IEnumerable<CodeInstruction> instr, MethodBase baseMethod)
-            => ReplaceCurrentMapUsageTranspilerInternal(instr, baseMethod, true);
-
-        private static IEnumerable<CodeInstruction> ReplaceCurrentMapUsageNoLogTranspiler(IEnumerable<CodeInstruction> instr, MethodBase baseMethod)
-            => ReplaceCurrentMapUsageTranspilerInternal(instr, baseMethod, false);
-
-        private static IEnumerable<CodeInstruction> ReplaceCurrentMapUsageTranspilerInternal(IEnumerable<CodeInstruction> instr, MethodBase baseMethod, bool logNoCurrentMapPatches)
         {
             var helper = new CurrentMapPatchHelper(baseMethod);
 
@@ -421,11 +409,9 @@ namespace Multiplayer.Compat
 
             if (!helper.IsSupported)
                 Log.Warning($"Unsupported type, can't patch current map usage for {name}");
-            else if (logNoCurrentMapPatches && !helper.IsPatched)
+            else if (!helper.IsPatched)
                 Log.Warning($"Failed patching current map usage for {name}");
 #if DEBUG
-            else if (!helper.IsPatched)
-                Log.Warning($"Failed patching current map usage for {name}, but logging was disabled");
             else
                 Log.Warning($"Successfully patched the current map usage for {name}");
 #endif

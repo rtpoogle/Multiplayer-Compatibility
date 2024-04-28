@@ -15,7 +15,7 @@
 
   <ItemGroup>
     <PackageReference Include="Lib.Harmony">
-      <Version>2.3.*</Version>
+      <Version>2.2.*</Version>
       <ExcludeAssets>runtime</ExcludeAssets>
     </PackageReference>
     <PackageReference Include="RimWorld.MultiplayerAPI">
@@ -23,16 +23,16 @@
       <ExcludeAssets>runtime</ExcludeAssets>
     </PackageReference>
     <PackageReference Include="Krafs.Rimworld.Ref">
-      <Version>1.5.*</Version>
+      <Version>1.4.*</Version>
       <ExcludeAssets>runtime</ExcludeAssets>
     </PackageReference>
     <PackageReference Include="Krafs.Publicizer">
-      <Version>2.2.*</Version>
+      <Version>1.0.*</Version>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
   </ItemGroup>
 
 	<ItemGroup>
-		<Publicize Include="Assembly-CSharp;0Harmony" />
+		<Publicize Include="Assembly-CSharp" />
 	</ItemGroup>
 </Project>
